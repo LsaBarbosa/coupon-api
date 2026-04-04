@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Coupon.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">coupon-api</a> &gt; <a href="index.source.html" class="el_package">com.example.couponapi.domain</a> &gt; <span class="el_source">Coupon.java</span></div><h1>Coupon.java</h1><pre class="source lang-java linenums">package com.example.couponapi.domain;
+
+import com.example.couponapi.exception.BusinessException;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.Objects;
+import java.util.UUID;
+
+@Entity
+@Table(name = &quot;coupons&quot;)
+public class Coupon {
+
+<span class="fc" id="L23">    private static final BigDecimal MINIMUM_DISCOUNT_VALUE = new BigDecimal(&quot;0.5&quot;);</span>
+    private static final int CODE_LENGTH = 6;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
+
+    @Column(nullable = false, length = 6)
+    private String code;
+
+    @Column(nullable = false)
+    private String description;
+
+    @Column(nullable = false, precision = 19, scale = 2)
+    private BigDecimal discountValue;
+
+    @Column(nullable = false)
+    private LocalDate expirationDate;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private CouponStatus status;
+
+    @Column(nullable = false)
+    private Boolean published;
+
+    @Column(nullable = false)
+    private Boolean deleted;
+
+<span class="fc" id="L52">    protected Coupon() {</span>
+        // JPA
+<span class="fc" id="L54">    }</span>
+
+    private Coupon(
+            String code,
+            String description,
+            BigDecimal discountValue,
+            LocalDate expirationDate,
+            CouponStatus status,
+            Boolean published,
+            Boolean deleted
+<span class="fc" id="L64">    ) {</span>
+<span class="fc" id="L65">        this.code = code;</span>
+<span class="fc" id="L66">        this.description = description;</span>
+<span class="fc" id="L67">        this.discountValue = discountValue;</span>
+<span class="fc" id="L68">        this.expirationDate = expirationDate;</span>
+<span class="fc" id="L69">        this.status = status;</span>
+<span class="fc" id="L70">        this.published = published;</span>
+<span class="fc" id="L71">        this.deleted = deleted;</span>
+<span class="fc" id="L72">    }</span>
+
+    public static Coupon create(
+            String rawCode,
+            String description,
+            BigDecimal discountValue,
+            LocalDate expirationDate,
+            Boolean published
+    ) {
+<span class="fc" id="L81">        String sanitizedCode = sanitizeCode(rawCode);</span>
+<span class="fc" id="L82">        validateCode(sanitizedCode);</span>
+<span class="fc" id="L83">        validateDescription(description);</span>
+<span class="fc" id="L84">        validateDiscountValue(discountValue);</span>
+<span class="fc" id="L85">        validateExpirationDate(expirationDate);</span>
+
+<span class="fc" id="L87">        return new Coupon(</span>
+                sanitizedCode,
+<span class="fc" id="L89">                description.trim(),</span>
+                discountValue,
+                expirationDate,
+                CouponStatus.ACTIVE,
+<span class="fc" id="L93">                Boolean.TRUE.equals(published),</span>
+<span class="fc" id="L94">                false</span>
+        );
+    }
+
+    public void delete() {
+<span class="pc bpc" id="L99" title="1 of 4 branches missed.">        if (Boolean.TRUE.equals(this.deleted) || CouponStatus.DELETED.equals(this.status)) {</span>
+<span class="fc" id="L100">            throw new BusinessException(&quot;Coupon already deleted&quot;);</span>
+        }
+
+<span class="fc" id="L103">        this.deleted = true;</span>
+<span class="fc" id="L104">        this.status = CouponStatus.DELETED;</span>
+<span class="fc" id="L105">    }</span>
+
+    private static void validateCode(String sanitizedCode) {
+<span class="pc bpc" id="L108" title="1 of 4 branches missed.">        if (sanitizedCode == null || sanitizedCode.length() != CODE_LENGTH) {</span>
+<span class="fc" id="L109">            throw new BusinessException(&quot;Coupon code must contain exactly 6 alphanumeric characters after sanitization&quot;);</span>
+        }
+<span class="fc" id="L111">    }</span>
+
+    private static void validateDescription(String description) {
+<span class="pc bpc" id="L114" title="2 of 4 branches missed.">        if (description == null || description.isBlank()) {</span>
+<span class="nc" id="L115">            throw new BusinessException(&quot;Coupon description is required&quot;);</span>
+        }
+<span class="fc" id="L117">    }</span>
+
+    private static void validateDiscountValue(BigDecimal discountValue) {
+<span class="pc bpc" id="L120" title="1 of 4 branches missed.">        if (discountValue == null || discountValue.compareTo(MINIMUM_DISCOUNT_VALUE) &lt; 0) {</span>
+<span class="fc" id="L121">            throw new BusinessException(&quot;Discount value must be greater than or equal to 0.5&quot;);</span>
+        }
+<span class="fc" id="L123">    }</span>
+
+    private static void validateExpirationDate(LocalDate expirationDate) {
+<span class="pc bpc" id="L126" title="1 of 2 branches missed.">        if (expirationDate == null) {</span>
+<span class="nc" id="L127">            throw new BusinessException(&quot;Expiration date is required&quot;);</span>
+        }
+
+<span class="fc bfc" id="L130" title="All 2 branches covered.">        if (expirationDate.isBefore(LocalDate.now())) {</span>
+<span class="fc" id="L131">            throw new BusinessException(&quot;Expiration date cannot be in the past&quot;);</span>
+        }
+<span class="fc" id="L133">    }</span>
+
+    public static String sanitizeCode(String rawCode) {
+<span class="pc bpc" id="L136" title="1 of 2 branches missed.">        if (rawCode == null) {</span>
+<span class="nc" id="L137">            return null;</span>
+        }
+<span class="fc" id="L139">        return rawCode.replaceAll(&quot;[^a-zA-Z0-9]&quot;, &quot;&quot;);</span>
+    }
+
+    public UUID getId() {
+<span class="fc" id="L143">        return id;</span>
+    }
+
+    public String getCode() {
+<span class="fc" id="L147">        return code;</span>
+    }
+
+    public String getDescription() {
+<span class="fc" id="L151">        return description;</span>
+    }
+
+    public BigDecimal getDiscountValue() {
+<span class="fc" id="L155">        return discountValue;</span>
+    }
+
+    public LocalDate getExpirationDate() {
+<span class="fc" id="L159">        return expirationDate;</span>
+    }
+
+    public CouponStatus getStatus() {
+<span class="fc" id="L163">        return status;</span>
+    }
+
+    public Boolean getPublished() {
+<span class="fc" id="L167">        return published;</span>
+    }
+
+    public Boolean getDeleted() {
+<span class="fc" id="L171">        return deleted;</span>
+    }
+
+    @Override
+    public boolean equals(Object o) {
+<span class="nc bnc" id="L176" title="All 2 branches missed.">        if (this == o) {</span>
+<span class="nc" id="L177">            return true;</span>
+        }
+<span class="nc bnc" id="L179" title="All 2 branches missed.">        if (!(o instanceof Coupon coupon)) {</span>
+<span class="nc" id="L180">            return false;</span>
+        }
+<span class="nc" id="L182">        return Objects.equals(id, coupon.id);</span>
+    }
+
+    @Override
+    public int hashCode() {
+<span class="nc" id="L187">        return Objects.hash(id);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

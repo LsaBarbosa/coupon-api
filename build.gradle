@@ -1,0 +1,74 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.5.13'
+    id 'io.spring.dependency-management' version '1.1.7'
+    id 'jacoco'
+}
+
+group = 'com.example'
+version = '0.0.1-SNAPSHOT'
+description = 'Coupon API challenge'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.16'
+    implementation 'org.apache.commons:commons-lang3:3.20.0'
+
+    runtimeOnly 'com.h2database:h2'
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.mockito:mockito-junit-jupiter'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+    finalizedBy tasks.named('jacocoTestReport')
+}
+
+jacoco {
+    toolVersion = '0.8.13'
+}
+
+jacocoTestReport {
+    dependsOn tasks.named('test')
+    reports {
+        xml.required = true
+        html.required = true
+        csv.required = false
+    }
+}
+
+jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            limit {
+                minimum = 0.80
+            }
+        }
+    }
+}
+
+tasks.named('check') {
+    dependsOn tasks.named('jacocoTestCoverageVerification')
+}
+
+
+tasks.named('jar') {
+    enabled = false
+}
+
+tasks.named('bootJar') {
+    archiveFileName = 'coupon-api.jar'
+}
