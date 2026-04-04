@@ -1,15 +1,7 @@
 package com.example.couponapi.domain;
 
 import com.example.couponapi.exception.BusinessException;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
+import jakarta.persistence.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -50,7 +42,6 @@ public class Coupon {
     private Boolean deleted;
 
     protected Coupon() {
-        // JPA
     }
 
     private Coupon(
