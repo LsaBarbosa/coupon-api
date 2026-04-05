@@ -1,12 +1,14 @@
-# Gradle
+# Build tools
 .gradle/
+**/.gradle/
 build/
+**/build/
 out/
-
-# Maven
+**/out/
 target/
+**/target/
 
-# Java
+# Java artifacts
 *.class
 *.jar
 *.war
@@ -15,7 +17,7 @@ hs_err_pid*
 replay_pid*
 *.hprof
 
-# IDEs
+# IDEs / editors
 .idea/
 *.iml
 .vscode/
@@ -23,7 +25,7 @@ replay_pid*
 .classpath
 .settings/
 
-# OS
+# OS files
 .DS_Store
 Thumbs.db
 
@@ -32,31 +34,29 @@ Thumbs.db
 logs/
 nohup.out
 
-# Env / local config
-.env
-.env.*
-*.local
-
 # Coverage / reports
 coverage/
 .jacoco/
 jacoco.exec
 
-# Temp
+# Temp / runtime
 tmp/
 temp/
 *.tmp
-
-# Generated / runtime
 *.pid
 *.pid.lock
 .run/
 
-# H2 local files (caso deixe de usar em memória)
+# Environment / local config
+.env
+.env.*
+*.local
+
+# H2 local files
 *.mv.db
 *.trace.db
 
-# Mantidos versionáveis
+# Keep these versioned
 !src/
 !gradle/wrapper/gradle-wrapper.jar
 !gradlew
