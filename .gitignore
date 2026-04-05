@@ -1,0 +1,66 @@
+# Gradle
+.gradle/
+build/
+out/
+
+# Maven
+target/
+
+# Java
+*.class
+*.jar
+*.war
+*.ear
+hs_err_pid*
+replay_pid*
+*.hprof
+
+# IDEs
+.idea/
+*.iml
+.vscode/
+.project
+.classpath
+.settings/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+nohup.out
+
+# Env / local config
+.env
+.env.*
+*.local
+
+# Coverage / reports
+coverage/
+.jacoco/
+jacoco.exec
+
+# Temp
+tmp/
+temp/
+*.tmp
+
+# Generated / runtime
+*.pid
+*.pid.lock
+.run/
+
+# H2 local files (caso deixe de usar em memória)
+*.mv.db
+*.trace.db
+
+# Mantidos versionáveis
+!src/
+!gradle/wrapper/gradle-wrapper.jar
+!gradlew
+!gradlew.bat
+!Dockerfile
+!docker-compose.yml
+!README.md
