@@ -1,17 +1,22 @@
 package com.santanna.couponapi.controller;
 
-import com.santanna.couponapi.repository.CouponRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.santanna.couponapi.repository.CouponRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Primary;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,6 +31,22 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 class CouponControllerIntegrationTest {
 
+    private static final String TODAY = "2026-04-05";
+    private static final String FUTURE_DATE = "2026-04-15";
+    private static final String PAST_DATE = "2026-04-04";
+
+    @TestConfiguration
+    static class FixedClockConfig {
+        @Bean
+        @Primary
+        Clock fixedClock() {
+            return Clock.fixed(
+                    Instant.parse("2026-04-05T12:00:00Z"),
+                    ZoneId.of("America/Sao_Paulo")
+            );
+        }
+    }
+
     @Autowired
     private MockMvc mockMvc;
 
@@ -39,6 +60,7 @@ class CouponControllerIntegrationTest {
     void setUp() {
         couponRepository.deleteAll();
     }
+
     @Test
     void shouldCreateCouponAndReturnSanitizedCode() throws Exception {
         Map<String, Object> request = validRequest();
@@ -69,13 +91,25 @@ class CouponControllerIntegrationTest {
     @Test
     void shouldReturnUnprocessableEntityWhenExpirationDateIsInThePast() throws Exception {
         Map<String, Object> request = validRequest();
-        request.put("expirationDate", LocalDate.now().minusDays(1).toString());
+        request.put("expirationDate", PAST_DATE);
 
         mockMvc.perform(post("/coupon")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isUnprocessableEntity())
                 .andExpect(jsonPath("$.message", is("Expiration date cannot be in the past")));
+    }
+
+    @Test
+    void shouldAcceptTodayAsExpirationDate() throws Exception {
+        Map<String, Object> request = validRequest();
+        request.put("expirationDate", TODAY);
+
+        mockMvc.perform(post("/coupon")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.expirationDate", is(TODAY)));
     }
 
     @Test
@@ -130,7 +164,7 @@ class CouponControllerIntegrationTest {
         request.put("code", "ABC123");
         request.put("description", "Summer campaign");
         request.put("discountValue", new BigDecimal("10.00"));
-        request.put("expirationDate", LocalDate.now().plusDays(10).toString());
+        request.put("expirationDate", FUTURE_DATE);
         request.put("published", false);
         return request;
     }

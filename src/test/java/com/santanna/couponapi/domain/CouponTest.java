@@ -13,14 +13,17 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class CouponTest {
 
+    private static final LocalDate TODAY = LocalDate.of(2026, 4, 5);
+
     @Test
     void shouldCreateValidCoupon() {
         Coupon coupon = Coupon.create(
                 "ABC123",
                 "Summer campaign",
                 new BigDecimal("10.00"),
-                LocalDate.now().plusDays(10),
-                true
+                TODAY.plusDays(10),
+                true,
+                TODAY
         );
 
         assertEquals("ABC123", coupon.getCode());
@@ -40,8 +43,9 @@ class CouponTest {
                 "AB-12@CD",
                 "Summer campaign",
                 new BigDecimal("10.00"),
-                LocalDate.now().plusDays(10),
-                false
+                TODAY.plusDays(10),
+                false,
+                TODAY
         );
 
         assertEquals("AB12CD", coupon.getCode());
@@ -53,8 +57,9 @@ class CouponTest {
                 "ABC123",
                 "Summer campaign",
                 new BigDecimal("0.49"),
-                LocalDate.now().plusDays(10),
-                false
+                TODAY.plusDays(10),
+                false,
+                TODAY
         ));
 
         assertEquals("Discount value must be greater than or equal to 0.5", exception.getMessage());
@@ -66,8 +71,9 @@ class CouponTest {
                 "ABC123",
                 "Summer campaign",
                 new BigDecimal("10.00"),
-                LocalDate.now().minusDays(1),
-                false
+                TODAY.minusDays(1),
+                false,
+                TODAY
         ));
 
         assertEquals("Expiration date cannot be in the past", exception.getMessage());
@@ -79,8 +85,9 @@ class CouponTest {
                 "A-1",
                 "Summer campaign",
                 new BigDecimal("10.00"),
-                LocalDate.now().plusDays(10),
-                false
+                TODAY.plusDays(10),
+                false,
+                TODAY
         ));
 
         assertEquals("Coupon code must contain exactly 6 alphanumeric characters after sanitization", exception.getMessage());
@@ -92,8 +99,9 @@ class CouponTest {
                 "ABC123",
                 "Summer campaign",
                 new BigDecimal("10.00"),
-                LocalDate.now().plusDays(10),
-                true
+                TODAY.plusDays(10),
+                true,
+                TODAY
         );
 
         coupon.delete();
@@ -108,8 +116,9 @@ class CouponTest {
                 "ABC123",
                 "Summer campaign",
                 new BigDecimal("10.00"),
-                LocalDate.now().plusDays(10),
-                true
+                TODAY.plusDays(10),
+                true,
+                TODAY
         );
         coupon.delete();
 

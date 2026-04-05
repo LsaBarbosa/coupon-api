@@ -9,25 +9,31 @@ import com.santanna.couponapi.repository.CouponRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Clock;
+import java.time.LocalDate;
 import java.util.UUID;
 
 @Service
 public class CouponService {
 
     private final CouponRepository couponRepository;
+    private final Clock clock;
 
-    public CouponService(CouponRepository couponRepository) {
+    public CouponService(CouponRepository couponRepository, Clock clock) {
         this.couponRepository = couponRepository;
+        this.clock = clock;
     }
 
     @Transactional
     public CouponResponse create(CreateCouponRequest request) {
+        LocalDate today =  LocalDate.now();
         Coupon coupon = Coupon.create(
                 request.code(),
                 request.description(),
                 request.discountValue(),
                 request.expirationDate(),
-                request.published()
+                request.published(),
+                today
         );
 
         if (couponRepository.existsByCodeAndDeletedFalse(coupon.getCode())) {

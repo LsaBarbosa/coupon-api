@@ -7,23 +7,24 @@ import com.santanna.couponapi.dto.response.CouponResponse;
 import com.santanna.couponapi.exception.BusinessException;
 import com.santanna.couponapi.exception.ResourceNotFoundException;
 import com.santanna.couponapi.repository.CouponRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
+import java.time.Clock;
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class CouponServiceTest {
@@ -31,8 +32,17 @@ class CouponServiceTest {
     @Mock
     private CouponRepository couponRepository;
 
-    @InjectMocks
     private CouponService couponService;
+    private Clock fixedClock;
+
+    @BeforeEach
+    void setUp() {
+        fixedClock = Clock.fixed(
+                Instant.parse("2026-04-05T12:00:00Z"),
+                ZoneId.of("America/Sao_Paulo")
+        );
+        couponService = new CouponService(couponRepository, fixedClock);
+    }
 
     @Test
     void shouldSaveCouponWhenRequestIsValid() {
@@ -40,7 +50,7 @@ class CouponServiceTest {
                 "AB-12@CD",
                 "Summer campaign",
                 new BigDecimal("10.00"),
-                LocalDate.now().plusDays(10),
+                LocalDate.of(2026, 4, 15),
                 true
         );
 
@@ -49,7 +59,8 @@ class CouponServiceTest {
                 request.description(),
                 request.discountValue(),
                 request.expirationDate(),
-                request.published()
+                request.published(),
+                LocalDate.now(fixedClock)
         );
 
         when(couponRepository.existsByCodeAndDeletedFalse("AB12CD")).thenReturn(false);
@@ -68,7 +79,7 @@ class CouponServiceTest {
                 "AB-12@CD",
                 "Summer campaign",
                 new BigDecimal("10.00"),
-                LocalDate.now().plusDays(10),
+                LocalDate.of(2026, 4, 15),
                 true
         );
 
@@ -87,8 +98,9 @@ class CouponServiceTest {
                 "ABC123",
                 "Summer campaign",
                 new BigDecimal("10.00"),
-                LocalDate.now().plusDays(10),
-                true
+                LocalDate.of(2026, 4, 15),
+                true,
+                LocalDate.now(fixedClock)
         );
 
         when(couponRepository.findById(couponId)).thenReturn(Optional.of(coupon));
@@ -105,8 +117,10 @@ class CouponServiceTest {
         UUID couponId = UUID.randomUUID();
         when(couponRepository.findById(couponId)).thenReturn(Optional.empty());
 
-        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
-                () -> couponService.delete(couponId));
+        ResourceNotFoundException exception = assertThrows(
+                ResourceNotFoundException.class,
+                () -> couponService.delete(couponId)
+        );
 
         assertEquals("Coupon not found", exception.getMessage());
         verify(couponRepository, never()).save(any(Coupon.class));
@@ -119,8 +133,9 @@ class CouponServiceTest {
                 "ABC123",
                 "Summer campaign",
                 new BigDecimal("10.00"),
-                LocalDate.now().plusDays(10),
-                true
+                LocalDate.of(2026, 4, 15),
+                true,
+                LocalDate.now(fixedClock)
         );
         coupon.delete();
 

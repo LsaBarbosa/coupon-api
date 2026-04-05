@@ -67,13 +67,14 @@ public class Coupon {
             String description,
             BigDecimal discountValue,
             LocalDate expirationDate,
-            boolean published
+            boolean published,
+            LocalDate today
     ) {
         String sanitizedCode = sanitizeCode(rawCode);
         validateCode(sanitizedCode);
         validateDescription(description);
         validateDiscountValue(discountValue);
-        validateExpirationDate(expirationDate);
+        validateExpirationDate(expirationDate, today);
 
         return new Coupon(
                 sanitizedCode,
@@ -113,12 +114,13 @@ public class Coupon {
         }
     }
 
-    private static void validateExpirationDate(LocalDate expirationDate) {
+    private static void validateExpirationDate(LocalDate expirationDate, LocalDate today ) {
         if (expirationDate == null) {
             throw new BusinessException("Expiration date is required");
         }
+        Objects.requireNonNull(today,"Referemce date must not be null");
 
-        if (expirationDate.isBefore(LocalDate.now())) {
+        if (expirationDate.isBefore(today)) {
             throw new BusinessException("Expiration date cannot be in the past");
         }
     }
