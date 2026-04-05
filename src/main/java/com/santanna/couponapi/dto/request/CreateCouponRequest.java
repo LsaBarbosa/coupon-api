@@ -30,6 +30,6 @@ public record CreateCouponRequest(
         LocalDate expirationDate,
 
         @Schema(example = "false", defaultValue = "false")
-        Boolean published
+        boolean published
 ) {
 }

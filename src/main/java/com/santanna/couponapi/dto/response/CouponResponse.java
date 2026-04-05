@@ -16,7 +16,7 @@ public record CouponResponse(
         BigDecimal discountValue,
         LocalDate expirationDate,
         CouponStatus status,
-        Boolean published
+        boolean published
 ) {
     public static CouponResponse from(Coupon coupon) {
         return new CouponResponse(

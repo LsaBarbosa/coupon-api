@@ -36,10 +36,10 @@ public class Coupon {
     private CouponStatus status;
 
     @Column(nullable = false)
-    private Boolean published;
+    private boolean published;
 
     @Column(nullable = false)
-    private Boolean deleted;
+    private boolean deleted;
 
     protected Coupon() {
     }
@@ -50,8 +50,8 @@ public class Coupon {
             BigDecimal discountValue,
             LocalDate expirationDate,
             CouponStatus status,
-            Boolean published,
-            Boolean deleted
+            boolean published,
+            boolean deleted
     ) {
         this.code = code;
         this.description = description;
@@ -67,7 +67,7 @@ public class Coupon {
             String description,
             BigDecimal discountValue,
             LocalDate expirationDate,
-            Boolean published
+            boolean published
     ) {
         String sanitizedCode = sanitizeCode(rawCode);
         validateCode(sanitizedCode);
@@ -81,13 +81,13 @@ public class Coupon {
                 discountValue,
                 expirationDate,
                 CouponStatus.ACTIVE,
-                Boolean.TRUE.equals(published),
+                published,
                 false
         );
     }
 
     public void delete() {
-        if (Boolean.TRUE.equals(this.deleted) || CouponStatus.DELETED.equals(this.status)) {
+        if (this.deleted) {
             throw new BusinessException("Coupon already deleted");
         }
 
@@ -154,27 +154,24 @@ public class Coupon {
         return status;
     }
 
-    public Boolean getPublished() {
+    public boolean getPublished() {
         return published;
     }
 
-    public Boolean getDeleted() {
+    public boolean getDeleted() {
         return deleted;
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof Coupon coupon)) {
-            return false;
-        }
-        return Objects.equals(id, coupon.id);
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Coupon other = (Coupon) o;
+        return id != null && id.equals(other.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id);
+        return getClass().hashCode();
     }
 }
