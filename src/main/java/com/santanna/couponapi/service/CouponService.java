@@ -26,7 +26,7 @@ public class CouponService {
 
     @Transactional
     public CouponResponse create(CreateCouponRequest request) {
-        LocalDate today =  LocalDate.now();
+        LocalDate today =  LocalDate.now(clock);
         Coupon coupon = Coupon.create(
                 request.code(),
                 request.description(),

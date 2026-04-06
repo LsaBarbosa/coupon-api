@@ -31,10 +31,6 @@ public class Coupon {
     @Column(nullable = false)
     private LocalDate expirationDate;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
-    private CouponStatus status;
-
     @Column(nullable = false)
     private boolean published;
 
@@ -49,7 +45,6 @@ public class Coupon {
             String description,
             BigDecimal discountValue,
             LocalDate expirationDate,
-            CouponStatus status,
             boolean published,
             boolean deleted
     ) {
@@ -57,7 +52,6 @@ public class Coupon {
         this.description = description;
         this.discountValue = discountValue;
         this.expirationDate = expirationDate;
-        this.status = status;
         this.published = published;
         this.deleted = deleted;
     }
@@ -81,7 +75,6 @@ public class Coupon {
                 description.trim(),
                 discountValue,
                 expirationDate,
-                CouponStatus.ACTIVE,
                 published,
                 false
         );
@@ -93,7 +86,6 @@ public class Coupon {
         }
 
         this.deleted = true;
-        this.status = CouponStatus.DELETED;
     }
 
     private static void validateCode(String sanitizedCode) {
@@ -152,10 +144,10 @@ public class Coupon {
         return expirationDate;
     }
 
+    @Transient
     public CouponStatus getStatus() {
-        return status;
+        return deleted ? CouponStatus.DELETED : CouponStatus.ACTIVE;
     }
-
     public boolean getPublished() {
         return published;
     }

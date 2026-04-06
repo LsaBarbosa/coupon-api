@@ -39,14 +39,13 @@ A entidade `Coupon` encapsula as regras centrais:
 - soft delete;
 - bloqueio de deleção duplicada.
 
-### 2. Soft delete com `status` e `deleted`
-Foram mantidos os dois campos:
-- `status`: representa o estado de negócio retornado pela API;
-- `deleted`: representa o controle técnico da exclusão lógica.
+### 2. Soft delete com `deleted` como fonte de verdade
 
-No delete:
-- `status = DELETED`
-- `deleted = true`
+O controle de exclusão lógica é feito exclusivamente pelo campo `deleted`.
+
+O campo `status` continua existindo no contrato da API, mas é derivado no domínio:
+- `deleted = false` -> `ACTIVE`
+- `deleted = true` -> `DELETED`
 
 ### 3. Código sanitizado antes da validação final
 A entrada aceita caracteres especiais, mas a persistência e a resposta retornam o valor já limpo.
