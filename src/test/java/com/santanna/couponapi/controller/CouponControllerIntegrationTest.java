@@ -155,8 +155,8 @@ class CouponControllerIntegrationTest {
                 .andExpect(status().isNoContent());
 
         mockMvc.perform(delete("/coupon/{id}", id))
-                .andExpect(status().isUnprocessableEntity())
-                .andExpect(jsonPath("$.message", is("Coupon already deleted")));
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message", is("Coupon not found")));
     }
 
     private Map<String, Object> validRequest() {

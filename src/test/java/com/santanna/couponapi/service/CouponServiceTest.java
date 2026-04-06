@@ -103,7 +103,7 @@ class CouponServiceTest {
                 LocalDate.now(fixedClock)
         );
 
-        when(couponRepository.findById(couponId)).thenReturn(Optional.of(coupon));
+        when(couponRepository.findByIdAndDeletedFalse(couponId)).thenReturn(Optional.of(coupon));
         when(couponRepository.save(coupon)).thenReturn(coupon);
 
         couponService.delete(couponId);
@@ -115,7 +115,7 @@ class CouponServiceTest {
     @Test
     void shouldFailToDeleteWhenCouponDoesNotExist() {
         UUID couponId = UUID.randomUUID();
-        when(couponRepository.findById(couponId)).thenReturn(Optional.empty());
+        when(couponRepository.findByIdAndDeletedFalse(couponId)).thenReturn(Optional.empty());
 
         ResourceNotFoundException exception = assertThrows(
                 ResourceNotFoundException.class,
@@ -139,7 +139,7 @@ class CouponServiceTest {
         );
         coupon.delete();
 
-        when(couponRepository.findById(couponId)).thenReturn(Optional.of(coupon));
+        when(couponRepository.findByIdAndDeletedFalse(couponId)).thenReturn(Optional.of(coupon));
 
         BusinessException exception = assertThrows(BusinessException.class, () -> couponService.delete(couponId));
 
